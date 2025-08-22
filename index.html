@@ -14,21 +14,25 @@
 
         body {
             font-family: arial;
-            display: flex;
-            justify-content: center;
-            width: 100vw;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            background-color: #000000;
-            overflow: hidden;
-        }
-
-        #scale-container {
             width: 1080px;
             height: 2400px;
-            transform-origin: top center;
-            position: relative;
+            margin: 0;
+            padding: 0;
+            transform-origin: top left;
+            background-color: #000000;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        /* Media query for screens larger than 315x700 */
+        @media screen and (min-width: 315px) and (min-height: 700px) {
+            body {
+                left: 50%;
+                transform-origin: top center;
+                transform: translateX(-50%);
+            }
         }
 
         #game-container {
@@ -191,9 +195,10 @@
     </style>
 </head>
 <body>
-    <div id="scale-container">
-        <!-- Game Container (for UI only) -->
-        <div id="game-container">
+   
+
+    <!-- Game Container (for UI only) -->
+    <div id="game-container">
          <!-- Background and Vapor Layers -->
     <div id="bk5"></div>
    
@@ -219,7 +224,6 @@
             </div>
         </div>
     </div>
-</div>
 
     <script>
         // Game configuration
@@ -266,7 +270,6 @@
             const windowHeight = window.innerHeight;
             const gameAspectRatio = 1080 / 2400;
             const windowAspectRatio = windowWidth / windowHeight;
-            const scaleContainer = document.getElementById('scale-container');
             
             let scale;
             if (windowAspectRatio > gameAspectRatio) {
@@ -277,7 +280,14 @@
                 scale = windowWidth / 1080;
             }
             
-            scaleContainer.style.transform = `scale(${scale})`;
+            // Apply different transform based on screen size
+            if (windowWidth >= 315 && windowHeight >= 700) {
+                // For larger screens - center aligned
+                document.body.style.transform = `translateX(-50%) scale(${scale})`;
+            } else {
+                // For smaller screens - left aligned
+                document.body.style.transform = `scale(${scale})`;
+            }
         }
 
         // Create and spawn a vapor
