@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Whack-a-Vapor</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: arial;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 1080px;
+            height: 2400px;
+            margin: 0 auto;
+            transform-origin: top left;
+            background-color: #000000;
+            overflow: hidden;
+        }
+
+        #game-container {
+            position: relative;
+            width: 1080px;
+            height: 2400px;
+            overflow: hidden;
+            background-size: contain;
+            background-color: #000000;
+        }
+
+        #bk5 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 2400px;
+            background-image: url('bk05.png');
+            background-size: cover;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        #bk4 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 2400px;
+            background-image: url('bk04.png');
+            background-size: cover;
+            z-index: 20;
+            pointer-events: none;
+        }
+
+        #bk3 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 2400px;
+            background-image: url('bk03.png');
+            background-size: cover;
+            z-index: 30;
+            pointer-events: none;
+        }
+
+        #bk2 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 2400px;
+            background-image: url('bk02.png');
+            background-size: cover;
+            z-index: 40;
+            pointer-events: none;
+        }
+
+        #bk1 {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 2400px;
+            background-image: url('bk01.png');
+            background-size: cover;
+            z-index: 50;
+            pointer-events: none;
+        }
+
+        .vapor-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1080px;
+            height: 2400px;
+            pointer-events: auto;
+        }
+
+        .vapor {
+            position: absolute;
+            width: 230px;
+            height: 230px;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            display: none;
+            pointer-events: auto;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 32%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 50px;
+            z-index: 1000;
+        }
+
+        #start-button {
+            position: absolute;
+            left: 50%;
+            top: 32%;
+            transform: translate(-50%, -50%);
+            cursor: pointer;
+            z-index: 1000;
+        }
+
+        #thank-you {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            z-index: 2000;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding-top: 800px;
+        }
+
+        #final-score {
+            font-size: 45px;
+            margin-bottom: 20px;
+        }
+
+        #result-message {
+            font-size: 65px;
+            margin-bottom: 40px;
+        }
+
+        #epro-section {
+            margin-top: 45px;
+            font-size: 30px;
+        }
+
+        .game-button {
+            display: inline-block;
+            padding: 18px 42px;
+            margin: 10px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 25px;
+            cursor: pointer;
+            border: none;
+        }
+
+        .game-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+   
+
+    <!-- Game Container (for UI only) -->
+    <div id="game-container">
+         <!-- Background and Vapor Layers -->
+    <div id="bk5"></div>
+   
+    <div id="bk4"></div>
+    <div id="bk3"></div>
+    <div id="bk2"></div>
+    <div id="vapor-container-1" class="vapor-container"></div>
+    <div id="bk1"></div>
+        <img src="startBtn.png" id="start-button">
+        <div id="ui-layer">
+            <div id="score">Score: 0</div>
+            <div id="timer">Time: 60</div>
+        </div>
+        <div id="thank-you">
+            <img src="thankYou.png" style="width: 100%; position: absolute; top: 0; left: 0; z-index: -1;">
+            <div id="final-score"></div>
+            <div id="result-message"></div>
+            <div id="epro-section">
+                Learn more about mitigating vapors at EPRO<br>
+                <div style="height:55px;"></div>
+                <a href="https://www.eproinc.com/" target="_blank" class="game-button">Learn More</a><br>
+                <button id="play-again" class="game-button">Play Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Game configuration
+        const GAME_CONFIG = {
+            duration: 60,
+            holePositions: [
+                {x: 174, y: 933},
+                {x: 532, y: 933},
+                {x: 889, y: 933},
+                {x: 174, y: 1215},
+                {x: 532, y: 1215},
+                {x: 889, y: 1215},
+                {x: 174, y: 1473},
+                {x: 532, y: 1473},
+                {x: 889, y: 1473},
+                {x: 174, y: 1766},
+                {x: 532, y: 1766},
+                {x: 889, y: 1766}
+            ],
+            vaporAssets: ['vapor01.png', 'vapor02.png', 'vapor03.png', 'vapor04.png', 'vapor05.png', 'vapor06.png']
+        };
+
+        // Game state
+        let gameState = {
+            score: 0,
+            timeRemaining: GAME_CONFIG.duration,
+            isPlaying: false,
+            gameTimer: null,
+            spawnTimer: null,
+            occupiedHoles: new Set() // Track which holes are currently occupied
+        };
+
+        // DOM Elements
+        const gameContainer = document.getElementById('game-container');
+        const startButton = document.getElementById('start-button');
+        const scoreElement = document.getElementById('score');
+        const timerElement = document.getElementById('timer');
+        const thankYouScreen = document.getElementById('thank-you');
+        const vaporContainer = document.getElementById('vapor-container-1');
+
+        // Handle responsive scaling
+        function setGameScale() {
+            const windowWidth = window.innerWidth;
+            const windowHeight = window.innerHeight;
+            const gameAspectRatio = 1080 / 2400;
+            const windowAspectRatio = windowWidth / windowHeight;
+            
+            let scale;
+            if (windowAspectRatio > gameAspectRatio) {
+                // Window is wider than game ratio - fit to height
+                scale = windowHeight / 2400;
+                document.body.style.marginLeft = `${(windowWidth - (1080 * scale)) / 2}px`;
+                document.body.style.marginTop = '0';
+            } else {
+                // Window is taller than game ratio - fit to width
+                scale = windowWidth / 1080;
+                document.body.style.marginLeft = '0';
+                document.body.style.marginTop = `${(windowHeight - (2400 * scale)) / 2}px`;
+            }
+            
+            document.body.style.transform = `scale(${scale})`;
+        }
+
+        // Create and spawn a vapor
+        function spawnVapor() {
+            if (!gameState.isPlaying) return;
+
+            // Get available holes (not currently occupied)
+            const availableHoles = GAME_CONFIG.holePositions.filter(hole => 
+                !gameState.occupiedHoles.has(`${hole.x},${hole.y}`)
+            );
+
+            // If no holes are available, skip this spawn
+            if (availableHoles.length === 0) return;
+
+            // Select a random available hole
+            const randomHole = availableHoles[Math.floor(Math.random() * availableHoles.length)];
+            const randomVapor = GAME_CONFIG.vaporAssets[Math.floor(Math.random() * GAME_CONFIG.vaporAssets.length)];
+            
+            // Mark the hole as occupied
+            const holeKey = `${randomHole.x},${randomHole.y}`;
+            gameState.occupiedHoles.add(holeKey);
+            
+            const vapor = document.createElement('img');
+            vapor.src = randomVapor;
+            vapor.className = 'vapor';
+            vapor.style.left = `${randomHole.x}px`;
+            vapor.style.top = `${randomHole.y}px`;
+            
+            // Set z-index based on y-coordinate row
+            switch(randomHole.y) {
+                case 933:  // Top row
+                    vapor.style.zIndex = '10';
+                    break;
+                case 1215: // Second row
+                    vapor.style.zIndex = '20';
+                    break;
+                case 1473: // Third row
+                    vapor.style.zIndex = '30';
+                    break;
+                case 1766: // Bottom row
+                    vapor.style.zIndex = '40';
+                    break;
+            }
+
+            vaporContainer.appendChild(vapor);
+
+            // Animate vapor appearance
+            gsap.fromTo(vapor, 
+                { 
+                    display: 'block', 
+                    opacity: 0,
+                    y: -50 // Start 50px below final position
+                },
+                { 
+                    opacity: 1,
+                    y: -100, // Move to final position
+                    duration: 1,
+                    ease: "elastic.in(.5, .5, 3)", // Add bounce effect with power of 3
+                    onComplete: () => {
+                        // Remove vapor if not clicked after some time
+                        setTimeout(() => {
+                            if (vapor.parentNode) {
+                                gsap.to(vapor, {
+                                    y: 50,
+                                    opacity: 0,
+                                    duration: 0.3,
+                                    ease: "power3.out",
+                                    onComplete: () => {
+                                        // Free up the hole when vapor is removed
+                                        const holeKey = `${randomHole.x},${randomHole.y}`;
+                                        gameState.occupiedHoles.delete(holeKey);
+                                        vapor.remove();
+                                    }
+                                });
+                            }
+                        }, 500); // Reduced to 0.5 seconds
+                    }
+                }
+            );
+
+            // Handle vapor click/tap
+            vapor.addEventListener('click', () => {
+                if (!gameState.isPlaying) return;
+                gameState.score++;
+                scoreElement.textContent = `Score: ${gameState.score}`;
+                
+                gsap.to(vapor, {
+                    y: 50,
+                    opacity: 0,
+                    duration: 0.2,
+                    ease: "power3.out",
+                    onComplete: () => {
+                        // Free up the hole when vapor is clicked
+                        const holeKey = `${randomHole.x},${randomHole.y}`;
+                        gameState.occupiedHoles.delete(holeKey);
+                        vapor.remove();
+                    }
+                });
+            });
+        }
+
+        // Start game function
+        function startGame() {
+            gameState.score = 0;
+            gameState.timeRemaining = GAME_CONFIG.duration;
+            gameState.isPlaying = true;
+            gameState.occupiedHoles.clear(); // Clear occupied holes tracking
+            
+            scoreElement.textContent = `Score: ${gameState.score}`;
+            timerElement.textContent = `Time: ${gameState.timeRemaining}`;
+            
+            startButton.style.display = 'none';
+            thankYouScreen.style.display = 'none';
+            document.getElementById('ui-layer').style.display = 'flex';
+
+            // Clear any existing vapors
+            vaporContainer.innerHTML = '';
+
+            // Start spawn timer with normal speed
+            updateSpawnRate(GAME_CONFIG.duration);
+
+            // Function to update spawn rate based on time remaining
+            function updateSpawnRate(timeRemaining) {
+                // Clear existing spawn timer if it exists
+                if (gameState.spawnTimer) {
+                    clearInterval(gameState.spawnTimer);
+                }
+
+                let spawnInterval;
+                let multiSpawnCount = 1;
+
+                // Progressive difficulty after 20 seconds
+                if (timeRemaining <= 40 && timeRemaining > 35) {
+                    // Phase 1: 40-35 seconds
+                    spawnInterval = 900;
+                    multiSpawnCount = 2;
+                } else if (timeRemaining <= 35 && timeRemaining > 30) {
+                    // Phase 2: 35-30 seconds
+                    spawnInterval = 800;
+                    multiSpawnCount = 2;
+                } else if (timeRemaining <= 30 && timeRemaining > 25) {
+                    // Phase 3: 30-25 seconds
+                    spawnInterval = 700;
+                    multiSpawnCount = 3;
+                } else if (timeRemaining <= 25 && timeRemaining > 20) {
+                    // Phase 4: 25-20 seconds
+                    spawnInterval = 600;
+                    multiSpawnCount = 3;
+                } else if (timeRemaining <= 20 && timeRemaining > 15) {
+                    // Phase 5: 20-15 seconds
+                    spawnInterval = 500;
+                    multiSpawnCount = 4;
+                } else if (timeRemaining <= 15 && timeRemaining > 10) {
+                    // Phase 6: 15-10 seconds
+                    spawnInterval = 400;
+                    multiSpawnCount = 4;
+                } else if (timeRemaining <= 10 && timeRemaining > 5) {
+                    // Phase 7: 10-5 seconds
+                    spawnInterval = 300;
+                    multiSpawnCount = 5;
+                } else if (timeRemaining <= 5) {
+                    // Final phase: Last 5 seconds
+                    spawnInterval = 250;
+                    multiSpawnCount = 6;
+                } else {
+                    // Normal speed (first 20 seconds)
+                    spawnInterval = 1000;
+                    multiSpawnCount = 1;
+                }
+
+                // Spawn initial batch of vapors
+                for (let i = 0; i < multiSpawnCount; i++) {
+                    setTimeout(() => spawnVapor(), i * 100);
+                }
+
+                // Start new spawn timer
+                gameState.spawnTimer = setInterval(() => {
+                    for (let i = 0; i < multiSpawnCount; i++) {
+                        setTimeout(() => spawnVapor(), i * 100);
+                    }
+                }, spawnInterval);
+            }
+
+            // Start game timer
+            gameState.gameTimer = setInterval(() => {
+                gameState.timeRemaining--;
+                timerElement.textContent = `Time: ${gameState.timeRemaining}`;
+
+                // Update spawn rate at each phase change
+                if (gameState.timeRemaining === 40 || 
+                    gameState.timeRemaining === 35 ||
+                    gameState.timeRemaining === 30 ||
+                    gameState.timeRemaining === 25 ||
+                    gameState.timeRemaining === 20 ||
+                    gameState.timeRemaining === 15 ||
+                    gameState.timeRemaining === 10 ||
+                    gameState.timeRemaining === 5) {
+                    updateSpawnRate(gameState.timeRemaining);
+                }
+
+                if (gameState.timeRemaining <= 0) {
+                    endGame();
+                }
+            }, 1000);
+        }
+
+        // End game function
+        function endGame() {
+            gameState.isPlaying = false;
+            clearInterval(gameState.gameTimer);
+            clearInterval(gameState.spawnTimer);
+            
+            // Remove all vapors
+            vaporContainer.innerHTML = '';
+            
+            // Hide UI
+            document.getElementById('ui-layer').style.display = 'none';
+            
+            // Set final score and message
+            const finalScoreElement = document.getElementById('final-score');
+            const resultMessageElement = document.getElementById('result-message');
+            
+            finalScoreElement.textContent = `Final Score: ${gameState.score}`;
+            
+            // Set message based on score
+            let message;
+            if (gameState.score > 20) {
+                message = "Legendary!<br>Get the right Geo-Seal® system for your site needs";
+            } else if (gameState.score > 10) {
+                message = "Novice!<br>Dig deeper into EPRO and Geo-Seal® here";
+            } else {
+                message = "Basic!<br>Discover EPRO and Geo-Seal® here";
+            }
+            resultMessageElement.innerHTML = message;
+
+            // Show thank you screen
+            thankYouScreen.style.display = 'block';
+        }
+
+        // Event Listeners
+        window.addEventListener('resize', setGameScale);
+        startButton.addEventListener('click', startGame);
+        document.getElementById('play-again').addEventListener('click', () => {
+            thankYouScreen.style.display = 'none';
+            startGame();
+        });
+
+        // Add snappy bounce hover effect to start button
+        startButton.addEventListener('mouseenter', () => {
+            gsap.to(startButton, {
+                scale: 1.15,
+                duration: 0.3,
+                ease: "elastic.out(1.5, 0.5)"  // Snappier elastic with higher tension
+            });
+        });
+
+        startButton.addEventListener('mouseleave', () => {
+            gsap.to(startButton, {
+                scale: 1,
+                duration: 0.2,
+                ease: "back.out(2)"  // Quick snapback with slight overshoot
+            });
+        });
+
+        // Initial setup
+        setGameScale();
+    </script>
+</body>
+</html>
