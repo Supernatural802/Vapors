@@ -15,14 +15,20 @@
         body {
             font-family: arial;
             display: flex;
-            align-items: center;
             justify-content: center;
-            width: 1080px;
-            height: 2400px;
-            margin: 0 auto;
-            transform-origin: top left;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
             background-color: #000000;
             overflow: hidden;
+        }
+
+        #scale-container {
+            width: 1080px;
+            height: 2400px;
+            transform-origin: top center;
+            position: relative;
         }
 
         #game-container {
@@ -185,10 +191,9 @@
     </style>
 </head>
 <body>
-   
-
-    <!-- Game Container (for UI only) -->
-    <div id="game-container">
+    <div id="scale-container">
+        <!-- Game Container (for UI only) -->
+        <div id="game-container">
          <!-- Background and Vapor Layers -->
     <div id="bk5"></div>
    
@@ -214,6 +219,7 @@
             </div>
         </div>
     </div>
+</div>
 
     <script>
         // Game configuration
@@ -260,21 +266,18 @@
             const windowHeight = window.innerHeight;
             const gameAspectRatio = 1080 / 2400;
             const windowAspectRatio = windowWidth / windowHeight;
+            const scaleContainer = document.getElementById('scale-container');
             
             let scale;
             if (windowAspectRatio > gameAspectRatio) {
                 // Window is wider than game ratio - fit to height
                 scale = windowHeight / 2400;
-                document.body.style.marginLeft = `${(windowWidth - (1080 * scale)) / 2}px`;
-                document.body.style.marginTop = '0';
             } else {
                 // Window is taller than game ratio - fit to width
                 scale = windowWidth / 1080;
-                document.body.style.marginLeft = '0';
-                document.body.style.marginTop = `${(windowHeight - (2400 * scale)) / 2}px`;
             }
             
-            document.body.style.transform = `scale(${scale})`;
+            scaleContainer.style.transform = `scale(${scale})`;
         }
 
         // Create and spawn a vapor
