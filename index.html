@@ -22,22 +22,16 @@
             height: 2400px;
             margin: 0;
             padding: 0;
-            transform-origin: top left;
             background-color: #000000;
             overflow: hidden;
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform-origin: center;
+            transform: translate(-50%, -50%);
         }
 
-        /* Media query for screens larger than 315x700 */
-        @media screen and (min-width: 315px) and (min-height: 700px) {
-            body {
-                left: 50%;
-                transform-origin: top center;
-                transform: translateX(-50%);
-            }
-        }
+      
 
         #game-container {
             position: relative;
@@ -46,6 +40,7 @@
             overflow: hidden;
             background-size: contain;
             background-color: #000000;
+            transform-origin: top center;
         }
 
         #bk5 {
@@ -297,14 +292,8 @@
                 scale = windowWidth / 1080;
             }
             
-            // Apply different transform based on screen size
-            if (windowWidth >= 315 && windowHeight >= 700) {
-                // For larger screens - center aligned
-                document.body.style.transform = `translateX(-50%) scale(${scale})`;
-            } else {
-                // For smaller screens - left aligned
-                document.body.style.transform = `scale(${scale})`;
-            }
+            // Always keep the game centered and scaled
+            document.body.style.transform = `translate(-50%, -50%) scale(${scale})`;
         }
 
         // Create and spawn a vapor
