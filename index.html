@@ -22,7 +22,7 @@
             height: 2400px;
             margin: 0;
             padding: 0;
-            background-color: #000000;
+            background: url('1pxBk.png') repeat;
             overflow: hidden;
             position: fixed;
             top: 50%;
@@ -39,7 +39,7 @@
             height: 2400px;
             overflow: hidden;
             background-size: contain;
-            background-color: #000000;
+            background-color: transparent;
             transform-origin: top center;
         }
 
@@ -197,6 +197,11 @@
 </head>
 <body>
    
+
+    <!-- Black background box -->
+    <svg width="1080" height="2400" style="position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);">
+        <rect width="1080" height="2400" fill="black"/>
+    </svg>
 
     <!-- Game Container (for UI only) -->
     <div id="game-container">
