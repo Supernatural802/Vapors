@@ -137,13 +137,51 @@
             z-index: 1000;
         }
 
-        #start-button {
+        #intro-screen {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #play-now-btn {
             position: absolute;
             left: 50%;
-            top: 32%;
+            top: 50%;
             transform: translate(-50%, -50%);
             cursor: pointer;
-            z-index: 1000;
+            z-index: 2001;
+            transition: transform 0.3s;
+        }
+
+        #play-now-btn:hover {
+            transform: translate(-50%, -53%) scale(1.1);
+        }
+
+        #countdown-screen {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1900;
+            display: none;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .countdown-number {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
         }
 
         #thank-you {
@@ -179,13 +217,13 @@
 
         .game-button {
             display: inline-block;
-            padding: 18px 42px;
-            margin: 10px;
-            background-color: #4CAF50;
+            padding: 30px 73px;
+            margin: 19px;
+            background-color: #77a827;
             color: white;
             text-decoration: none;
-            border-radius: 5px;
-            font-size: 25px;
+            border-radius: 65px;
+            font-size: 45px;
             cursor: pointer;
             border: none;
         }
@@ -205,15 +243,26 @@
 
     <!-- Game Container (for UI only) -->
     <div id="game-container">
-         <!-- Background and Vapor Layers -->
-    <div id="bk5"></div>
-   
-    <div id="bk4"></div>
-    <div id="bk3"></div>
-    <div id="bk2"></div>
-    <div id="vapor-container-1" class="vapor-container"></div>
-    <div id="bk1"></div>
-        <img src="startBtn.png" id="start-button">
+        <!-- Intro Screen -->
+        <div id="intro-screen">
+            <img src="introScreen.png" style="width: 100%; height: 100%; object-fit: cover;">
+            <img src="playNowBtn.png" id="play-now-btn">
+        </div>
+
+        <!-- Countdown Screen -->
+        <div id="countdown-screen">
+            <img src="three.png" class="countdown-number" id="three">
+            <img src="two.png" class="countdown-number" id="two">
+            <img src="one.png" class="countdown-number" id="one">
+        </div>
+
+        <!-- Background and Vapor Layers -->
+        <div id="bk5"></div>
+        <div id="bk4"></div>
+        <div id="bk3"></div>
+        <div id="bk2"></div>
+        <div id="vapor-container-1" class="vapor-container"></div>
+        <div id="bk1"></div>
         <div id="ui-layer">
             <div id="score">Score: 0</div>
             <div id="timer">Time: 60</div>
@@ -265,12 +314,19 @@
 
         // DOM Elements
         const gameContainer = document.getElementById('game-container');
-        const startButton = document.getElementById('start-button');
+        const introScreen = document.getElementById('intro-screen');
+        const playNowBtn = document.getElementById('play-now-btn');
+        const countdownScreen = document.getElementById('countdown-screen');
         const scoreElement = document.getElementById('score');
         const timerElement = document.getElementById('timer');
         const thankYouScreen = document.getElementById('thank-you');
         const vaporContainer = document.getElementById('vapor-container-1');
         const vaporClickSound = document.getElementById('vaporClickSound');
+        
+        // Countdown elements
+        const threeElement = document.getElementById('three');
+        const twoElement = document.getElementById('two');
+        const oneElement = document.getElementById('one');
 
         // Function to play vapor click sound
         function playVaporSound() {
@@ -407,8 +463,62 @@
             });
         }
 
+        // Countdown animation function
+        function startCountdown() {
+            return new Promise((resolve) => {
+                countdownScreen.style.display = 'flex';
+                
+                // Show and animate "3"
+                gsap.fromTo(threeElement, 
+                    { display: 'block', scale: 0, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+                );
+                
+                setTimeout(() => {
+                    gsap.to(threeElement, { scale: 0, opacity: 0, duration: 0.3 });
+                    
+                    // Show and animate "2"
+                    setTimeout(() => {
+                        gsap.fromTo(twoElement,
+                            { display: 'block', scale: 0, opacity: 0 },
+                            { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+                        );
+                        
+                        setTimeout(() => {
+                            gsap.to(twoElement, { scale: 0, opacity: 0, duration: 0.3 });
+                            
+                            // Show and animate "1"
+                            setTimeout(() => {
+                                gsap.fromTo(oneElement,
+                                    { display: 'block', scale: 0, opacity: 0 },
+                                    { scale: 1, opacity: 1, duration: 0.5, ease: "back.out(1.7)" }
+                                );
+                                
+                                setTimeout(() => {
+                                    gsap.to(oneElement, { scale: 0, opacity: 0, duration: 0.3 });
+                                    setTimeout(() => {
+                                        countdownScreen.style.display = 'none';
+                                        threeElement.style.display = 'none';
+                                        twoElement.style.display = 'none';
+                                        oneElement.style.display = 'none';
+                                        resolve();
+                                    }, 300);
+                                }, 800);
+                            }, 300);
+                        }, 800);
+                    }, 300);
+                }, 800);
+            });
+        }
+
         // Start game function
-        function startGame() {
+        async function startGame() {
+            // Hide intro screen if visible
+            introScreen.style.display = 'none';
+            
+            // Start countdown
+            await startCountdown();
+            
             gameState.score = 0;
             gameState.timeRemaining = GAME_CONFIG.duration;
             gameState.isPlaying = true;
@@ -418,7 +528,6 @@
             scoreElement.textContent = `Score: ${gameState.score}`;
             timerElement.textContent = `Time: ${gameState.timeRemaining}`;
             
-            startButton.style.display = 'none';
             thankYouScreen.style.display = 'none';
             document.getElementById('ui-layer').style.display = 'flex';
 
@@ -522,7 +631,7 @@
             // Set message based on score
             let message;
             if (gameState.score > 20) {
-                message = "Legendary!<br>Get the right Geo-Seal<sup>®</sup> system<br>for your site needs!";
+                message = "Legendary!<br>Get the right Geo-Seal<sup>®</sup><br>system for your site needs!";
             } else if (gameState.score > 10) {
                 message = "Novice<sup>TM</sup>!<br>Dig deeper into EPRO and Geo-Seal<sup>®</sup> here!";
             } else {
@@ -536,27 +645,10 @@
 
         // Event Listeners
         window.addEventListener('resize', setGameScale);
-        startButton.addEventListener('click', startGame);
+        playNowBtn.addEventListener('click', startGame);
         document.getElementById('play-again').addEventListener('click', () => {
             thankYouScreen.style.display = 'none';
             startGame();
-        });
-
-        // Add snappy bounce hover effect to start button
-        startButton.addEventListener('mouseenter', () => {
-            gsap.to(startButton, {
-                scale: 1.15,
-                duration: 0.3,
-                ease: "elastic.out(1.5, 0.5)"  // Snappier elastic with higher tension
-            });
-        });
-
-        startButton.addEventListener('mouseleave', () => {
-            gsap.to(startButton, {
-                scale: 1,
-                duration: 0.2,
-                ease: "back.out(2)"  // Quick snapback with slight overshoot
-            });
         });
 
         // Initial setup
